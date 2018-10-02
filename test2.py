@@ -12,12 +12,19 @@ TCP_PORT = 8009
 
 def set_volume(volume, request):
     volume = str(volume/100)
-    print(len(volume), len(str(request)))
+    #print(len(volume), len(str(request)))
     msg_len = len(volume) + len(str(request))
     r_volmsg = vol_msgs[msg_len].replace(b'###', bytes(volume, 'utf-8'))
     r_volmsg = r_volmsg.replace(b'$$$', bytes(str(request), 'utf-8'))
-    print(r_volmsg)
-
+    se = sys.getsizeof(r_volmsg) - 33
+    size = pack(">I", se)
+    print(f'SIZE: {se} code:{pack("B", r_volmsg[64])}')
+    i = 0
+    """
+    for ch in r_volmsg:
+        print(i, pack("B", ch))
+        i +=1
+    """
 
 init_msgs = [
     b'\x08\x00\x12\x08sender-0\x1a\nreceiver-0"(urn:x-cast:com.google.cast.tp.connection(\x002\x13{"type": "CONNECT"}',

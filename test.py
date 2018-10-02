@@ -24,7 +24,7 @@ volmsg = b'\x08\x00\x12\x08sender-0\x1a\nreceiver-0"#urn:x-cast:com.google.cast.
 
 rCastM = cast_channel_pb2.CastMessage()
 rCastM.ParseFromString(volmsg)
-payload = json.loads(rCastM.payload_utf8)
+#payload = json.loads(rCastM.payload_utf8)
 a_dic = {}
 for vol in range(0, 101): 
     payload['requestId'] = vol
