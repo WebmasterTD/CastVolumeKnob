@@ -7,7 +7,7 @@ import sys
 import time
 
 
-TCP_IP = '192.168.0.103'
+TCP_IP = '192.168.0.100'
 TCP_PORT = 8009
 
 def set_volume(volume, request):
@@ -44,8 +44,9 @@ vol_msgs_sized =  {
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((TCP_IP, TCP_PORT))
-s = ssl.wrap_socket(s)
-
+#s = ssl.wrap_socket(s)
+print(socket.gethostname())
+"""
 for msg in init_msgs_sized:
     s.sendall(msg)
 
@@ -64,4 +65,4 @@ while True:
         print()
         s.close()
         break
-    
+"""
