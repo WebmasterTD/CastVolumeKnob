@@ -1,10 +1,7 @@
 import socket
 import ssl
-import json
-from struct import pack, unpack
-import cast_channel_pb2
-import sys
-import time
+from struct import unpack
+
 
 
 TCP_IP = '192.168.0.100'
@@ -44,9 +41,9 @@ vol_msgs_sized =  {
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((TCP_IP, TCP_PORT))
-#s = ssl.wrap_socket(s)
-print(socket.gethostname())
-"""
+s = ssl.wrap_socket(s)
+#print(socket.gethostname())
+
 for msg in init_msgs_sized:
     s.sendall(msg)
 
@@ -65,4 +62,3 @@ while True:
         print()
         s.close()
         break
-"""
