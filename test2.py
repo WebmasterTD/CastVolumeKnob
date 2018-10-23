@@ -6,6 +6,7 @@ from struct import unpack
 
 TCP_IP = '192.168.0.100'
 TCP_PORT = 8009
+TCP_PORT_GROUP = 42560
 
 def set_volume(volume, request):
     volume = str(volume/100)
