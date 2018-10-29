@@ -98,6 +98,9 @@ class Encoder(object):
     def reset(self):
         self._value = 0
 
+    def set_val(self, val):
+        self._value = self.clicks * val
+
 
 def test(enc=None, **kwargs):
     from time import sleep_ms
