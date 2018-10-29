@@ -1,10 +1,10 @@
 import socket
 import ssl
 from struct import unpack
+import re
 
 
-
-TCP_IP = '192.168.0.100'
+TCP_IP = '192.168.0.164'
 TCP_PORT = 8009
 TCP_PORT_GROUP = 42560
 
@@ -48,10 +48,16 @@ s = ssl.wrap_socket(s)
 for msg in init_msgs_sized:
     s.sendall(msg)
 
-
+#Getting current volume
 siz = unpack('>I',s.recv(4))[0]
-print(s.recv(siz))
+status = str(s.recv(siz))
+print(re.search('\"level\":([0-9]\.?[0-9]*)', status).group(1))
+vol = float(re.search('\"level\":([0-9]\.?[0-9]*)', status).group(1))
+vol = int(round(vol*100))
+print(vol)
 
+s.close()
+'''
 req = 2
 while True:
     try:
@@ -63,3 +69,4 @@ while True:
         print()
         s.close()
         break
+'''
