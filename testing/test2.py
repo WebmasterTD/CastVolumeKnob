@@ -56,8 +56,7 @@ vol = float(re.search('\"level\":([0-9]\.?[0-9]*)', status).group(1))
 vol = int(round(vol*100))
 print(vol)
 
-s.close()
-'''
+
 req = 2
 while True:
     try:
@@ -69,4 +68,3 @@ while True:
         print()
         s.close()
         break
-'''

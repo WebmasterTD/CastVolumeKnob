@@ -7,7 +7,8 @@ import gc
 
 ########################
 # Wifi passwords here: #
-
+WIFI_SSID = 'TP-LINK_E180'
+WIFI_PASSWORD = 'borz52KAI?'
 ########################
 
 def do_connect():

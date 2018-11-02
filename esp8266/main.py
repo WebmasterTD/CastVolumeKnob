@@ -5,12 +5,14 @@ import utime as time
 import usocket as socket
 import ussl as ssl
 import neopixel, machine
+import esp
 import volume
 #ToDo 
 #Fix 11 request bug 
 #Wait for a few senconds then go to sleep
-
-def neo_pixel_ring(np, volume):
+cast_ip = ('192.168.0.164', '192.168.0.165')
+cast_name  = ('SH6', 'Chromecast')
+def neo_pixel_ring(np, volume, clear=False):
     gamma8 = (0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
         0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  1,
         1,  1,  1,  1,  1,  1,  1,  1,  1,  2,  2,  2,  2,  2,  2,  2,
@@ -28,18 +30,22 @@ def neo_pixel_ring(np, volume):
         177,180,182,184,186,189,191,193,196,198,200,203,205,208,210,213,
         215,218,220,223,225,228,231,233,236,239,241,244,247,249,252,255)
     n = np.n
-    for i in range(n):
-        level = (volume*40.96) // 256
-        if (level) > i:
-            red = int((volume/100)*255)          
-            green = 255 - red
-            np[i] = (0, 0, 255)
-        elif (level) == i:
-            num = int((40.96*volume)%256)
-            np[i] = (0,0,gamma8[num])
+    if not clear:
+        for i in range(n):
+            level = (volume*40.96) // 256
+            if (level) > i:
+                red = int((volume/100)*255)          
+                green = 255 - red
+                np[i] = (0, 0, 255)
+            elif (level) == i:
+                num = int((40.96*volume)%256)
+                np[i] = (0,0,gamma8[num])
 
-        else:
-            np[i] = (gamma8[30], gamma8[30], gamma8[30])
+            else:
+                np[i] = (gamma8[30], gamma8[30], gamma8[30])
+    else:
+        for i in range(n):
+            np[i] = (0,0,0)
     np.write()
 
 def callback(p):
@@ -50,15 +56,12 @@ def main():
     #     Encoder(clk, dt, pin_mode=None, clicks=1, min_val=0, max_val=100, accel=0, reverse=False)
     enc = Encoder(12, 13, clicks=2, reverse=True)
     np = neopixel.NeoPixel(machine.Pin(4), 16)
-    switch = machine.Pin(5, machine.Pin.IN, machine.Pin.PULL_UP)
-    cast = volume.Chromecast('192.168.0.164')
+    switch = machine.Pin(14, machine.Pin.IN, machine.Pin.PULL_UP)
+    print(cast_ip[switch.value()])
+    cast = volume.Chromecast(cast_ip[switch.value()])
     
-    if switch.value():
-        print("switch on @ boot")
-        current_switch = switch.value()
-    else:
-        print("switch off @ boot")
-        current_switch = switch.value()
+    print("switch on @ boot", switch.value(), cast_name[switch.value()])
+    current_switch = switch.value()
 
     vol = cast.get_volume
     enc.set_val(vol)
@@ -67,6 +70,7 @@ def main():
     last_change_tick = time.ticks_ms()
     neo_pixel_ring(np, vol)
     req = 1
+    
     while True:
         val = enc.value
         if last_enc_val != val:
@@ -75,19 +79,37 @@ def main():
             last_enc_val = val
             last_change_tick = time.ticks_ms()
             
-        if (time.ticks_diff(time.ticks_ms(), last_change_tick) > 100) and (val != current_vol):
-            print('NEW VOLUME SET', val, 'request:', req)
+        if (time.ticks_diff(time.ticks_ms(), last_change_tick) > 200) and (last_enc_val != current_vol):
+            #print('NEW VOLUME SET')
             req +=1
             cast.set_volume(val)
-            current_vol = val
+            current_vol = cast.get_volume
+            print('current volume:', current_vol)
+            #enc.set_val(cast.get_volume)
+
 
         if switch.value() != current_switch:
-            print("disconnected")
-            cast.disconnect()
             current_switch = switch.value()
+            cast.disconnect()
+            print(current_switch)
+            cast = volume.Chromecast(cast_ip[current_switch])
+            
+            vol = cast.get_volume
+            current_vol = vol
+            enc.set_val(vol)
+            last_change_tick = time.ticks_ms()
+            print('switched to chromecast no:', current_switch, 'current vol:', vol, cast_name[current_switch])
+            #print('encoder:', enc.value, 'last encoder', last_enc_val)
+
+        if (time.ticks_diff(time.ticks_ms(), last_change_tick) > 10000): #10 sec
+            cast.disconnect()
+            neo_pixel_ring(np, 0, clear=True)
+            esp.deepsleep()
 
 
-        time.sleep_ms(50)
+
+
+        time.sleep_ms(100)
 
 if __name__ == '__main__':
     main()

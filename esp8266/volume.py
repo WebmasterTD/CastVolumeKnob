@@ -28,11 +28,8 @@ class Chromecast(object):
         
         for msg in INIT_MSGS:
             self.s.write(msg)
-
-        siz = unpack('>I',self.s.read(4))[0]
-        status = str(self.s.read(siz))
-        self.vol = float(re.search('\"level\":([0-9]\.?[0-9]*)', status).group(1))
-        self.vol = int(round(self.vol*100))
+            
+        self.read_message()
     
     @property
     def get_volume(self):
@@ -45,9 +42,17 @@ class Chromecast(object):
         r_volmsg = VOL_MSGS[msg_len]
         r_volmsg = r_volmsg.replace(b'###', bytes(volume, 'utf-8'))
         r_volmsg = r_volmsg.replace(b'$$$', bytes(str(self.request), 'utf-8'))
-        self.request += 1
-
+        #print(volume, self.request, r_volmsg)
         self.s.write(r_volmsg)
-    
+        self.request += 1
+        self.read_message()
+
     def disconnect(self):
-        self.s.close()    
+        self.s.close()
+    
+    def read_message(self):
+        siz = unpack('>I',self.s.read(4))[0]
+        status = str(self.s.read(siz))
+        self.vol = float(re.search('\"level\":([0-9]\.?[0-9]*)', status).group(1))
+        self.vol = int(round(self.vol*100))
+        #print(self.vol)
