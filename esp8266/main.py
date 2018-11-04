@@ -59,7 +59,10 @@ def main():
     switch = machine.Pin(14, machine.Pin.IN, machine.Pin.PULL_UP)
     print(cast_ip[switch.value()])
     cast = volume.Chromecast(cast_ip[switch.value()])
-    
+
+    cast_led = [machine.Pin(x, machine.Pin.OUT) for x in range(0, 16, 15)]
+    cast_led[switch.value()].on()
+    cast_led[switch.value()-1].off()
     print("switch on @ boot", switch.value(), cast_name[switch.value()])
     current_switch = switch.value()
 
@@ -78,7 +81,8 @@ def main():
             neo_pixel_ring(np, val)
             last_enc_val = val
             last_change_tick = time.ticks_ms()
-            
+
+        #CHANGING VOLUME    
         if (time.ticks_diff(time.ticks_ms(), last_change_tick) > 200) and (last_enc_val != current_vol):
             #print('NEW VOLUME SET')
             req +=1
@@ -87,7 +91,7 @@ def main():
             print('current volume:', current_vol)
             #enc.set_val(cast.get_volume)
 
-
+        #CHANGING CHROMECAST
         if switch.value() != current_switch:
             current_switch = switch.value()
             cast.disconnect()
@@ -99,11 +103,16 @@ def main():
             enc.set_val(vol)
             last_change_tick = time.ticks_ms()
             print('switched to chromecast no:', current_switch, 'current vol:', vol, cast_name[current_switch])
+            cast_led[switch.value()].on()
+            cast_led[switch.value()-1].off()
             #print('encoder:', enc.value, 'last encoder', last_enc_val)
-
+        
+        #SLEEP AFTER DELAY
         if (time.ticks_diff(time.ticks_ms(), last_change_tick) > 10000): #10 sec
             cast.disconnect()
             neo_pixel_ring(np, 0, clear=True)
+            for led in cast_led:
+                led.off()
             esp.deepsleep()
 
 
