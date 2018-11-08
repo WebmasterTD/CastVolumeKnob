@@ -99,8 +99,15 @@ class Encoder(object):
         self._value = 0
 
     def set_val(self, val):
-        self._value = self.clicks * val
-
+        new_val = self.clicks * int(val)
+        if new_val >= self.min_val or new_val <= self.max_val:
+            self._value = new_val
+        elif new_val < self.min_val:
+            self._value = self.min_val
+        elif new_val > self.max_val:
+            self._value = self.min_val
+        else:
+            pass
 
 def test(enc=None, **kwargs):
     from time import sleep_ms
