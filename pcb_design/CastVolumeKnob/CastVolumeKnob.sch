@@ -15,7 +15,7 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L wemos_mini:WeMos_mini U?
+L CastVolumeKnob-rescue:WeMos_mini-wemos_mini U?
 U 1 1 5BE35DA7
 P 5250 3600
 F 0 "U?" H 5250 4343 60  0000 C CNN
