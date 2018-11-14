@@ -1,6 +1,7 @@
 import usocket as socket
 import ussl as ssl
 import ure as re
+import machine
 from neopixel import NeoPixel
 from ustruct import unpack
 
@@ -78,7 +79,13 @@ class Chromecast(object):
 
 class NeoPixelRing(NeoPixel):
     
+    def __init__(self, led_v_pin, *args, **kwargs):
+        self.led_v = machine.Pin(led_v_pin, machine.Pin.OUT)
+        self.turn_on()
+        super(NeoPixelRing(, self).__init__(*args, **kwargs))
+
     def set_vol(self, volume):
+        
         n = self.n
         for i in range(n):
             level = (volume * 40.96) // 256
@@ -102,3 +109,7 @@ class NeoPixelRing(NeoPixel):
     def turn_off(self):
         self.fill((0,0,0))
         self.write()
+        self.led_v.off()
+
+    def turn_on(self):
+        self.led_v.on()

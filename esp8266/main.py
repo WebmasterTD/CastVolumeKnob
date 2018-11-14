@@ -12,10 +12,10 @@ cast_name  = ('SH6', 'Chromecast')
 def main():
     #Initialize the encoder:
     #     Encoder(clk, dt, pin_mode=None, clicks=1, min_val=0, max_val=100, accel=0, reverse=False)
-    led = machine.Pin(4, machine.Pin.OUT)
-    led.on()
+    #led = machine.Pin(4, machine.Pin.OUT)
+    #led.on()
     enc = Encoder(12, 13, clicks=2, reverse=True)
-    np = volume.NeoPixelRing(machine.Pin(15), 16)
+    np = volume.NeoPixelRing(4, machine.Pin(15), 16)
     switch = machine.Pin(14, machine.Pin.IN, machine.Pin.PULL_UP)
     print(cast_ip[switch.value()])
     
@@ -56,31 +56,22 @@ def main():
 
         #CHANGING CHROMECAST
         if switch.value() != current_switch:
+            #####
+            np.error()
+            #####
             current_switch = switch.value()
             cast.disconnect()
-            print(current_switch)
-            #####
             cast = volume.Chromecast(cast_ip[current_switch])
-            #####
             vol = cast.get_volume
             current_vol = vol
             enc.set_val(vol)
             last_change_tick = time.ticks_ms()
             print('switched to chromecast no:', current_switch, 'current vol:', vol, cast_name[current_switch])
-            #####
-            np.error()
-            time.sleep_ms(1000)
-            #####
         
         #SLEEP AFTER DELAY
         if (time.ticks_diff(time.ticks_ms(), last_change_tick) > 10000): #10 sec
             cast.disconnect()
             np.turn_off()
-            #####
-            #for led in cast_led:
-            #    led.off()
-            #####
-            led.off()
             print("SLEEP")
             esp.deepsleep()
 
