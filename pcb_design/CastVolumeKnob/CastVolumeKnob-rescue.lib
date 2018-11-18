@@ -1,6 +1,23 @@
 EESchema-LIBRARY Version 2.4
 #encoding utf-8
 #
+# KY-040-KY-040
+#
+DEF KY-040-KY-040 E 0 40 Y Y 1 F N
+F0 "E" 0 250 50 H V C CNN
+F1 "KY-040-KY-040" 0 350 50 H V C CNN
+F2 "" 0 0 50 H I C CNN
+F3 "" 0 0 50 H I C CNN
+DRAW
+S -250 0 250 200 0 1 0 f
+X CLK 1 -200 -200 200 U 50 50 1 1 P
+X DT 2 -100 -200 200 U 50 50 1 1 P
+X SW 3 0 -200 200 U 50 50 1 1 P
+X + 4 100 -200 200 U 50 50 1 1 P
+X GND 5 200 -200 200 U 50 50 1 1 P
+ENDDRAW
+ENDDEF
+#
 # WeMos_mini-wemos_mini
 #
 DEF WeMos_mini-wemos_mini U 0 40 Y Y 1 F N
