@@ -1,51 +1,91 @@
+#include <avr/interrupt.h>
 #include <avr/sleep.h>
 #include <Time.h>
 
-const byte ledPin = 13;
-const byte interruptPin = 2;
-volatile bool state = LOW;
-volatile unsigned long timestamp = millis();
-volatile bool interrupted = false;
-bool prev_state = LOW;
+#define WAKE_PIN 2
+#define LED_V_PIN 4
+#define INT_PIN 0
+
+volatile int state = 30;
 
 void setup() {
-  Serial.begin(9600);
-  pinMode(ledPin, OUTPUT);
-  pinMode(interruptPin, INPUT_PULLUP);
-   //enable global interrupts
-  Serial.println(millis());
-  //set_sleep_mode(SLEEP_MODE_PWR_DOWN);
-}
+  GIMSK = 0b00100000;
+  PCMSK = 0b00000001;
+  ADCSRA &= ~_BV(ADEN);                   
+  
+  //Serial.begin(9600);
+  
+  pinMode(WAKE_PIN, OUTPUT);
+  pinMode(LED_V_PIN, INPUT);
+  pinMode(INT_PIN, INPUT_PULLUP);
+  digitalWrite(WAKE_PIN, HIGH);
+  
+  sei();
+  //attachInterrupt(digitalPinToInterrupt(INT_PIN), wake_up, LOW);
+  }
 
 void loop() {
-  digitalWrite(ledPin, state);
-  /*if (interrupted)
-  {
-    Serial.println("interrupted");
-    detachInterrupt(digitalPinToInterrupt(interruptPin));
-  }*/
-  if (state != prev_state)
-  {
-    prev_state = state;
-    Serial.println(millis());
+  switch (state) {
+    case 0:   //reset ESP 
+      rst_esp();
+      state = 10;
+      break;
+      
+    case 5:   //TEST case
+      delay(1000);
+      state = 30;
+      break;
+      
+    case 10:    //WAIT for ESP to turn on
+      while (digitalRead(LED_V_PIN) == LOW) {
+        delay(50);
+      }
+      state = 20;
+      break;
+
+    case 20:    //WAIT for ESP to turn off     
+      while (digitalRead(LED_V_PIN) == HIGH) {
+        delay(50);
+      }
+      state = 30;
+      break;
+      
+    case 30:
+      //attachInterrupt(digitalPinToInterrupt(INT_PIN), wake_up, LOW);
+      sei();
+      state = 40;
+      break;
+    case 40:
+      sleep();
   }
-  if ((millis() - timestamp) > 1000)
-  { 
-    attachInterrupt(digitalPinToInterrupt(interruptPin), wake_up, LOW);
-    //set_sleep_mode(SLEEP_MODE_PWR_DOWN);
-    //cli(); //disable global interrupts
-    //sleep_enable(); //enable sleep mode
-    //sleep_bod_disable(); //Brown out detection
-    //sei();
-    //sleep_cpu(); //activating sleep mode
-  }
+  delay(100);
+
 }
 
+/*
 void wake_up() {
-  detachInterrupt(digitalPinToInterrupt(interruptPin));
+  detachInterrupt(digitalPinToInterrupt(INT_PIN));
   //sleep_disable();
-  //interrupted = true;
-  //Serial.println(millis());
-  state = !state;
-  timestamp = millis();
+  state = 0;
 }
+*/
+
+ISR(PCINT0_vect)
+{
+  cli();
+  state = 0;
+}
+
+void rst_esp() {
+  digitalWrite(WAKE_PIN, LOW);
+  delay(500);
+  digitalWrite(WAKE_PIN, HIGH);
+}
+
+void sleep() {
+    cli();
+    set_sleep_mode(SLEEP_MODE_PWR_DOWN);    // replaces above statement
+    sleep_enable();                         // Sets the Sleep Enable bit in the MCUCR Register (SE BIT)
+    sei();                                  // Enable interrupts
+    sleep_cpu();                            // sleep
+    } 
