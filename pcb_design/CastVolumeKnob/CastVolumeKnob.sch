@@ -215,9 +215,9 @@ F 3 "" H 4950 1850 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Text Label 5100 2400 2    50   ~ 0
-LED_RING
+LED_V
 Text Label 1800 3900 2    50   ~ 0
-LED_RING
+LED_V
 Wire Wire Line
 	2250 5100 1850 5100
 Connection ~ 2250 5100
@@ -237,7 +237,7 @@ F 3 "" H 8900 3300 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	8700 3300 8700 2500
+	8700 3300 8700 3100
 Wire Wire Line
 	8950 2900 9100 2900
 $Comp
@@ -305,18 +305,14 @@ Wire Wire Line
 	7200 3650 7200 3800
 Wire Wire Line
 	7200 5000 7200 5150
-Text Label 8000 4200 0    50   ~ 0
+Text Label 7950 4300 0    50   ~ 0
 WAKE_PIN
 Text Label 6650 3000 0    50   ~ 0
 WAKE_PIN
-Wire Wire Line
-	8000 4200 7800 4200
 Text Label 8850 2500 3    50   ~ 0
-SWITCH
-Text Label 8000 4300 0    50   ~ 0
-SWITCH
-Wire Wire Line
-	8000 4300 7800 4300
+E_BUTTON
+Text Label 8700 4100 0    50   ~ 0
+E_BUTTON
 $Comp
 L Connector_Generic:Conn_01x03 J?
 U 1 1 5BED5659
@@ -368,15 +364,6 @@ Connection ~ 3800 4700
 Wire Wire Line
 	3800 4700 4150 4700
 Connection ~ 2250 4750
-Wire Wire Line
-	1800 3900 2000 3900
-Wire Wire Line
-	2000 4750 2000 3900
-Wire Wire Line
-	2000 4750 2250 4750
-Connection ~ 2000 3900
-Wire Wire Line
-	2000 3900 2450 3900
 Wire Wire Line
 	4500 2000 4500 1700
 Wire Wire Line
@@ -502,14 +489,12 @@ Text Label 8350 2300 0    50   ~ 0
 E_CLK
 Text Label 8350 2400 0    50   ~ 0
 E_DT
-Text Label 8350 2500 0    50   ~ 0
+Text Label 8200 3100 0    50   ~ 0
 CAST_SW
 Wire Wire Line
 	8350 2300 8650 2300
 Wire Wire Line
 	8750 2400 8350 2400
-Wire Wire Line
-	8350 2500 8700 2500
 Text Label 6650 2300 0    50   ~ 0
 E_CLK
 Text Label 6650 2100 0    50   ~ 0
@@ -537,4 +522,185 @@ Wire Wire Line
 	8950 2150 8950 2900
 Wire Wire Line
 	9050 2150 9050 2400
+$Comp
+L pspice:DIODE D?
+U 1 1 5BF83B53
+P 1900 4200
+F 0 "D?" V 1854 4328 50  0000 L CNN
+F 1 "1N4007" V 1945 4328 50  0000 L CNN
+F 2 "" H 1900 4200 50  0001 C CNN
+F 3 "~" H 1900 4200 50  0001 C CNN
+	1    1900 4200
+	0    1    1    0   
+$EndComp
+$Comp
+L pspice:DIODE D?
+U 1 1 5BF83C8F
+P 2150 3900
+F 0 "D?" H 2150 4165 50  0000 C CNN
+F 1 "1N4007" H 2150 4074 50  0000 C CNN
+F 2 "" H 2150 3900 50  0001 C CNN
+F 3 "~" H 2150 3900 50  0001 C CNN
+	1    2150 3900
+	1    0    0    -1  
+$EndComp
+$Comp
+L pspice:DIODE D?
+U 1 1 5BF83D37
+P 8150 4800
+F 0 "D?" H 8150 4535 50  0000 C CNN
+F 1 "1N4007" H 8150 4626 50  0000 C CNN
+F 2 "" H 8150 4800 50  0001 C CNN
+F 3 "~" H 8150 4800 50  0001 C CNN
+	1    8150 4800
+	0    -1   -1   0   
+$EndComp
+Text Label 8150 5200 0    50   ~ 0
+LED_V
+Wire Wire Line
+	1800 3900 1900 3900
+Wire Wire Line
+	2350 3900 2450 3900
+Wire Wire Line
+	1900 4000 1900 3900
+Connection ~ 1900 3900
+Wire Wire Line
+	1900 3900 1950 3900
+Wire Wire Line
+	1900 4750 2250 4750
+Wire Wire Line
+	1900 4400 1900 4750
+$Comp
+L Device:C C?
+U 1 1 5BF99E77
+P 8450 4300
+F 0 "C?" H 8565 4346 50  0000 L CNN
+F 1 "0.3uF" H 8565 4255 50  0000 L CNN
+F 2 "" H 8488 4150 50  0001 C CNN
+F 3 "~" H 8450 4300 50  0001 C CNN
+	1    8450 4300
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8450 4100 8450 4150
+Wire Wire Line
+	8450 4100 8700 4100
+$Comp
+L power:GND #PWR?
+U 1 1 5BFA2B6D
+P 8450 4550
+F 0 "#PWR?" H 8450 4300 50  0001 C CNN
+F 1 "GND" H 8455 4377 50  0000 C CNN
+F 2 "" H 8450 4550 50  0001 C CNN
+F 3 "" H 8450 4550 50  0001 C CNN
+	1    8450 4550
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8150 5000 8150 5200
+Wire Wire Line
+	8450 4450 8450 4550
+Wire Wire Line
+	8200 3100 8700 3100
+$Comp
+L Connector_Generic:Conn_01x02 J?
+U 1 1 5BF858A4
+P 2700 1300
+F 0 "J?" H 2780 1292 50  0000 L CNN
+F 1 "POWER_5V" H 2780 1201 50  0000 L CNN
+F 2 "" H 2700 1300 50  0001 C CNN
+F 3 "~" H 2700 1300 50  0001 C CNN
+	1    2700 1300
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+5V #PWR?
+U 1 1 5BF85A88
+P 2350 1250
+F 0 "#PWR?" H 2350 1100 50  0001 C CNN
+F 1 "+5V" H 2365 1423 50  0000 C CNN
+F 2 "" H 2350 1250 50  0001 C CNN
+F 3 "" H 2350 1250 50  0001 C CNN
+	1    2350 1250
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 5BF85AB9
+P 2350 1450
+F 0 "#PWR?" H 2350 1200 50  0001 C CNN
+F 1 "GND" H 2355 1277 50  0000 C CNN
+F 2 "" H 2350 1450 50  0001 C CNN
+F 3 "" H 2350 1450 50  0001 C CNN
+	1    2350 1450
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2500 1300 2350 1300
+Wire Wire Line
+	2350 1300 2350 1250
+Wire Wire Line
+	2500 1400 2350 1400
+Wire Wire Line
+	2350 1400 2350 1450
+Wire Wire Line
+	7800 4100 8450 4100
+Connection ~ 8450 4100
+Wire Wire Line
+	7800 4500 8150 4500
+Wire Wire Line
+	8150 4500 8150 4600
+Wire Wire Line
+	7800 4300 7950 4300
+NoConn ~ 7800 4200
+NoConn ~ 7800 4400
+NoConn ~ 7800 4600
+$Comp
+L power:PWR_FLAG #FLG?
+U 1 1 5BFCA3FA
+P 3600 1050
+F 0 "#FLG?" H 3600 1125 50  0001 C CNN
+F 1 "PWR_FLAG" H 3600 1224 50  0000 C CNN
+F 2 "" H 3600 1050 50  0001 C CNN
+F 3 "~" H 3600 1050 50  0001 C CNN
+	1    3600 1050
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:PWR_FLAG #FLG?
+U 1 1 5BFCA49C
+P 4000 1050
+F 0 "#FLG?" H 4000 1125 50  0001 C CNN
+F 1 "PWR_FLAG" H 4000 1224 50  0000 C CNN
+F 2 "" H 4000 1050 50  0001 C CNN
+F 3 "~" H 4000 1050 50  0001 C CNN
+	1    4000 1050
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 5BFCA524
+P 4000 1150
+F 0 "#PWR?" H 4000 900 50  0001 C CNN
+F 1 "GND" H 4005 977 50  0000 C CNN
+F 2 "" H 4000 1150 50  0001 C CNN
+F 3 "" H 4000 1150 50  0001 C CNN
+	1    4000 1150
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+5V #PWR?
+U 1 1 5BFCA555
+P 3600 1150
+F 0 "#PWR?" H 3600 1000 50  0001 C CNN
+F 1 "+5V" H 3615 1323 50  0000 C CNN
+F 2 "" H 3600 1150 50  0001 C CNN
+F 3 "" H 3600 1150 50  0001 C CNN
+	1    3600 1150
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	3600 1050 3600 1150
+Wire Wire Line
+	4000 1050 4000 1150
 $EndSCHEMATC
