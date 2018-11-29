@@ -82,7 +82,7 @@ class NeoPixelRing(NeoPixel):
     def __init__(self, led_v_pin, *args, **kwargs):
         self.led_v = machine.Pin(led_v_pin, machine.Pin.OUT)
         self.turn_on()
-        super(NeoPixelRing(, self).__init__(*args, **kwargs))
+        super(NeoPixelRing, self).__init__(*args, **kwargs)
 
     def set_vol(self, volume):
         
