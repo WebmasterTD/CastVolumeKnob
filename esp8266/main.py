@@ -10,21 +10,13 @@ import volume
 cast_ip = ('192.168.0.164', '192.168.0.165')
 cast_name  = ('SH6', 'Chromecast')
 def main():
-    #Initialize the encoder:
-    #     Encoder(clk, dt, pin_mode=None, clicks=1, min_val=0, max_val=100, accel=0, reverse=False)
-    #led = machine.Pin(4, machine.Pin.OUT)
-    #led.on()
     enc = Encoder(12, 13, clicks=2, reverse=True)
     np = volume.NeoPixelRing(4, machine.Pin(15), 16)
     switch = machine.Pin(14, machine.Pin.IN, machine.Pin.PULL_UP)
+    button = machine.Pin(5, machine.Pin.IN)
     print(cast_ip[switch.value()])
     
     cast = volume.Chromecast(cast_ip[switch.value()])
-    
-
-    #cast_led = [machine.Pin(x, machine.Pin.OUT) for x in [0, 16]]
-    #cast_led[switch.value()].on()
-    #cast_led[switch.value()-1].off()
 
     current_switch = switch.value()
     print("switch on @ boot", switch.value(), cast_name[switch.value()])
@@ -74,6 +66,15 @@ def main():
             np.turn_off()
             print("SLEEP")
             esp.deepsleep()
+        if button.value():
+            #np.error()
+            print("BUTTON PRESSED")
+            last_change_tick = time.ticks_ms()
+            np.fill_color((255,0,255))
+            time.sleep_ms(500)
+            np.set_vol(val)
+
+
 
         time.sleep_ms(100)
 

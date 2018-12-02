@@ -113,3 +113,7 @@ class NeoPixelRing(NeoPixel):
 
     def turn_on(self):
         self.led_v.on()
+
+    def fill_color(self, color):
+        self.fill(color)
+        self.write()
