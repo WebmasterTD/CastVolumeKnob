@@ -5,6 +5,7 @@
 #define WAKE_PIN 2
 #define LED_V_PIN 4
 #define INT_PIN 0
+#define BUTTON 3
 
 volatile int state = 30;
 
@@ -14,12 +15,12 @@ void setup() {
   ADCSRA &= ~_BV(ADEN);                   
   
   //Serial.begin(9600);
-  
   pinMode(WAKE_PIN, OUTPUT);
-  pinMode(LED_V_PIN, INPUT);
-  pinMode(INT_PIN, INPUT_PULLUP);
   digitalWrite(WAKE_PIN, HIGH);
-  
+  pinMode(LED_V_PIN, INPUT);
+  pinMode(BUTTON, OUTPUT);
+  pinMode(INT_PIN, INPUT_PULLUP);
+ 
   sei();
   //attachInterrupt(digitalPinToInterrupt(INT_PIN), wake_up, LOW);
   }
@@ -43,9 +44,15 @@ void loop() {
       state = 20;
       break;
 
-    case 20:    //WAIT for ESP to turn off     
+    case 20:    //RUNNING --- WAIT for ESP to turn off     
       while (digitalRead(LED_V_PIN) == HIGH) {
+        if (digitalRead(INT_PIN) == LOW){
+          digitalWrite(BUTTON, HIGH);
+          delay(100);
+          digitalWrite(BUTTON, LOW);
+        }
         delay(50);
+        //Serial.println(state);
       }
       state = 30;
       break;
