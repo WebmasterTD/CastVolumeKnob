@@ -16,7 +16,7 @@ VOL_MSGS =  {
         7:b'\x00\x00\x00\x84\x08\x00\x12\x08sender-0\x1a\nreceiver-0"#urn:x-cast:com.google.cast.receiver(\x002C{"type": "SET_VOLUME", "volume": {"level": ###}, "requestId": $$$}',
         8:b'\x00\x00\x00\x85\x08\x00\x12\x08sender-0\x1a\nreceiver-0"#urn:x-cast:com.google.cast.receiver(\x002D{"type": "SET_VOLUME", "volume": {"level": ###}, "requestId": $$$}'}
 
-gamma8 = (0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+GAMMA8 = (0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
             0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  1,
             1,  1,  1,  1,  1,  1,  1,  1,  1,  2,  2,  2,  2,  2,  2,  2,
             2,  3,  3,  3,  3,  3,  3,  3,  4,  4,  4,  4,  4,  5,  5,  5,
@@ -36,7 +36,7 @@ gamma8 = (0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 
 class Chromecast(object):        
     
-    def __init__(self, ip):
+    def __init__(self, ip, demo = None, timeout = None):
         self.ip = ip
         self.request = 2
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -85,7 +85,6 @@ class NeoPixelRing(NeoPixel):
         super(NeoPixelRing, self).__init__(*args, **kwargs)
 
     def set_vol(self, volume):
-        
         n = self.n
         for i in range(n):
             level = (volume * 40.96) // 256
@@ -94,11 +93,11 @@ class NeoPixelRing(NeoPixel):
                 self[i] = color
             elif i == level:
                 num = int((40.96 * volume) % 256)
-                color = (0, 0, gamma8[num])
+                color = (0, 0, GAMMA8[num])
                 self[i] = color
 
             else:
-                color = (gamma8[30], gamma8[30], gamma8[30])
+                color = (GAMMA8[30], GAMMA8[30], GAMMA8[30])
                 self[i] = color
         self.write()
 
@@ -115,5 +114,6 @@ class NeoPixelRing(NeoPixel):
         self.led_v.on()
 
     def fill_color(self, color):
-        self.fill(color)
+        a, b, c = color
+        self.fill((GAMMA8[a], GAMMA8[b], GAMMA8[c]))
         self.write()

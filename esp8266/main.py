@@ -3,32 +3,44 @@ import utime as time
 import machine
 import esp
 import volume
-
+import wificonf
 #ToDo 
 #add exceptions and error handling
 
-cast_ip = ('192.168.0.164', '192.168.0.165')
-cast_name  = ('SH6', 'Chromecast')
+cast_ip = list(wificonf.CHROMECASTS.keys())
+
+cast_name  = wificonf.CHROMECASTS
+
+
+
+def cycle(p):
+    try:
+        len(p)
+    except TypeError:
+        # len() is not defined for this type. Assume it is
+        # a finite iterable so we must cache the elements.
+        cache = []
+        for i in p:
+            yield i
+            cache.append(i)
+        p = cache
+    while p:
+        yield from p
+
+chromecast = cycle(cast_ip)
+
 def main():
     enc = Encoder(12, 13, clicks=2, reverse=True)
     np = volume.NeoPixelRing(4, machine.Pin(15), 16)
-    switch = machine.Pin(14, machine.Pin.IN, machine.Pin.PULL_UP)
     button = machine.Pin(5, machine.Pin.IN)
-    print(cast_ip[switch.value()])
-    
-    cast = volume.Chromecast(cast_ip[switch.value()])
+    cast = volume.Chromecast(next(chromecast))
 
-    current_switch = switch.value()
-    print("switch on @ boot", switch.value(), cast_name[switch.value()])
-    
-    vol = cast.get_volume
-    current_vol = vol
-    print('current volume:', current_vol)
-    enc.set_val(vol)
-    
-    last_enc_val = vol
+    current_vol = cast.get_volume
+    print('Connected to:', cast_name[next(chromecast)], next(chromecast), 'current vol:', current_vol)
+    enc.set_val(current_vol)
+    last_enc_val = current_vol
     last_change_tick = time.ticks_ms()
-    np.set_vol(vol)
+    np.set_vol(current_vol)
     req = 1
     
     while True:
@@ -46,31 +58,23 @@ def main():
             current_vol = cast.get_volume
             print('current volume:', current_vol)
 
-        #CHANGING CHROMECAST
-        if switch.value() != current_switch:
-            #####
-            np.error()
-            #####
-            current_switch = switch.value()
-            cast.disconnect()
-            cast = volume.Chromecast(cast_ip[current_switch])
-            vol = cast.get_volume
-            current_vol = vol
-            enc.set_val(vol)
-            last_change_tick = time.ticks_ms()
-            print('switched to chromecast no:', current_switch, 'current vol:', vol, cast_name[current_switch])
-        
         #SLEEP AFTER DELAY
         if (time.ticks_diff(time.ticks_ms(), last_change_tick) > 10000): #10 sec
             cast.disconnect()
             np.turn_off()
             print("SLEEP")
             esp.deepsleep()
+        
+        #CHANGING CHROMECAST WITH ENCODER BUTTON
         if button.value():
-            #np.error()
             print("BUTTON PRESSED")
-            last_change_tick = time.ticks_ms()
             np.fill_color((255,0,255))
+            cast.disconnect()
+            cast = volume.Chromecast(next(chromecast))
+            current_vol = cast.get_volume
+            enc.set_val(current_vol)
+            print('switched to:', cast_name[next(chromecast)], next(chromecast), 'current vol:', current_vol)
+            last_change_tick = time.ticks_ms()
             time.sleep_ms(500)
             np.set_vol(val)
 
