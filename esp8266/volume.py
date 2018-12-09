@@ -4,7 +4,8 @@ import ure as re
 import machine
 from neopixel import NeoPixel
 from ustruct import unpack
-
+import math
+import wificonf
 INIT_MSGS = (
         b'\x00\x00\x00Y\x08\x00\x12\x08sender-0\x1a\nreceiver-0"(urn:x-cast:com.google.cast.tp.connection(\x002\x13{"type": "CONNECT"}',
         b'\x00\x00\x00g\x08\x00\x12\x08sender-0\x1a\nreceiver-0"#urn:x-cast:com.google.cast.receiver(\x002&{"type": "GET_STATUS", "requestId": 1}')
@@ -79,14 +80,21 @@ class Chromecast(object):
 
 class NeoPixelRing(NeoPixel):
     
-    def __init__(self, led_v_pin, *args, **kwargs):
+    def __init__(self, led_v_pin, device, *args, **kwargs):
         self.led_v = machine.Pin(led_v_pin, machine.Pin.OUT)
+        self.colors = wificonf.DEVICE_COLORS
+        self.device = device
         self.turn_on()
         super(NeoPixelRing, self).__init__(*args, **kwargs)
 
+    def change_device(self, device, volume):
+        self.device = device
+        self.set_volume(volume)
+
     def set_vol(self, volume):
         n = self.n
-        for i in range(n):
+        self[0] = colors[self.device]
+        for i in range(1, n):
             level = (volume * 40.96) // 256
             if i < level:
                 color = (0, 0, 255)
@@ -117,3 +125,26 @@ class NeoPixelRing(NeoPixel):
         a, b, c = color
         self.fill((GAMMA8[a], GAMMA8[b], GAMMA8[c]))
         self.write()
+
+    
+
+    def hsv2rgb(h, s, v):
+        h = float(h)
+        s = float(s)
+        v = float(v)
+        h60 = h / 60.0
+        h60f = math.floor(h60)
+        hi = int(h60f) % 6
+        f = h60 - h60f
+        p = v * (1 - s)
+        q = v * (1 - f * s)
+        t = v * (1 - (1 - f) * s)
+        r, g, b = 0, 0, 0
+        if hi == 0: r, g, b = v, t, p
+        elif hi == 1: r, g, b = q, v, p
+        elif hi == 2: r, g, b = p, v, t
+        elif hi == 3: r, g, b = p, q, v
+        elif hi == 4: r, g, b = t, p, v
+        elif hi == 5: r, g, b = v, p, q
+        r, g, b = int(r * 255), int(g * 255), int(b * 255)
+        return r, g, b

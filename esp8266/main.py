@@ -4,8 +4,6 @@ import machine
 import esp
 import volume
 import wificonf
-#ToDo 
-#add exceptions and error handling
 
 cast_ip = list(wificonf.CHROMECASTS.keys())
 
@@ -30,13 +28,14 @@ def cycle(p):
 chromecast = cycle(cast_ip)
 
 def main():
+    device = next(chromecast)
     enc = Encoder(12, 13, clicks=2, reverse=True)
-    np = volume.NeoPixelRing(4, machine.Pin(15), 16)
+    np = volume.NeoPixelRing(4, machine.Pin(15), 16, device)
     button = machine.Pin(5, machine.Pin.IN)
-    cast = volume.Chromecast(next(chromecast))
+    cast = volume.Chromecast(device)
 
     current_vol = cast.get_volume
-    print('Connected to:', cast_name[next(chromecast)], next(chromecast), 'current vol:', current_vol)
+    print('Connected to:', cast_name[device], device, 'current vol:', current_vol)
     enc.set_val(current_vol)
     last_enc_val = current_vol
     last_change_tick = time.ticks_ms()
@@ -68,15 +67,18 @@ def main():
         #CHANGING CHROMECAST WITH ENCODER BUTTON
         if button.value():
             print("BUTTON PRESSED")
-            np.fill_color((255,0,255))
             cast.disconnect()
-            cast = volume.Chromecast(next(chromecast))
+            device = next(chromecast)
+            cast = volume.Chromecast(device)
             current_vol = cast.get_volume
             enc.set_val(current_vol)
-            print('switched to:', cast_name[next(chromecast)], next(chromecast), 'current vol:', current_vol)
+            np.fill((0,255,255))
+            time.sleep_ms(200)
+            np.change_device(device, current_vol)
+            print('switched to:', cast_name[device], device, 'current vol:', current_vol)
             last_change_tick = time.ticks_ms()
-            time.sleep_ms(500)
-            np.set_vol(val)
+            
+
 
 
 
