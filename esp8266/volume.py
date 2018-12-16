@@ -1,6 +1,7 @@
 import usocket as socket
 import ussl as ssl
 import ure as re
+import utime as time
 import machine
 from neopixel import NeoPixel
 from ustruct import unpack
@@ -88,26 +89,46 @@ class NeoPixelRing(NeoPixel):
         super(NeoPixelRing, self).__init__(*args, **kwargs)
 
     def change_device(self, device, volume):
+        vol = int(volume)
         self.device = device
-        self.set_volume(volume)
+        rev = list(enumerate(self.vol2pix(vol), 1))
+        r, g, b = self.colors[self.device]
+        for i in range(16):
+            self[i] = GAMMA8[r], GAMMA8[g], GAMMA8[b]
+            self.write()
+            time.sleep_ms(30)
+
+        time.sleep_ms(100)
+        
+        for i, c in rev[::-1]:
+            h, s, v = c
+            self[i] = self.hsv2rgb(h, s, v)
+            self.write()
+            time.sleep_ms(30)
+        
+
+        self.set_vol(volume)
 
     def set_vol(self, volume):
-        n = self.n
-        self[0] = colors[self.device]
-        for i in range(1, n):
-            level = (volume * 40.96) // 256
-            if i < level:
-                color = (0, 0, 255)
-                self[i] = color
-            elif i == level:
-                num = int((40.96 * volume) % 256)
-                color = (0, 0, GAMMA8[num])
-                self[i] = color
-
-            else:
-                color = (GAMMA8[30], GAMMA8[30], GAMMA8[30])
-                self[i] = color
+        vol = int(volume)
+        self[0] = self.colors[self.device]
+        for i, c in enumerate(self.vol2pix(vol), 1):
+            h, s, v = c
+            self[i] = self.hsv2rgb(h, s, v)
         self.write()
+
+    def vol2pix(self, volume):
+        pixels = (4.5, 4.5, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 34.5, 34.5)
+        hues =   (240,210,180,168,156,144,132,120,108,96,84,72,60,30,0)
+        for h, p in zip(hues, pixels):
+            if (volume/p) > 1:
+                yield (h, 1, 1)
+            elif (volume/p) > 0:
+                yield (h, 1, volume/p)
+            else:
+                yield (h, 1, 0)
+            volume = volume - p
+        return
 
     def error(self):
         self.fill((255,128,0))
@@ -121,14 +142,7 @@ class NeoPixelRing(NeoPixel):
     def turn_on(self):
         self.led_v.on()
 
-    def fill_color(self, color):
-        a, b, c = color
-        self.fill((GAMMA8[a], GAMMA8[b], GAMMA8[c]))
-        self.write()
-
-    
-
-    def hsv2rgb(h, s, v):
+    def hsv2rgb(self, h, s, v):
         h = float(h)
         s = float(s)
         v = float(v)
@@ -147,4 +161,4 @@ class NeoPixelRing(NeoPixel):
         elif hi == 4: r, g, b = t, p, v
         elif hi == 5: r, g, b = v, p, q
         r, g, b = int(r * 255), int(g * 255), int(b * 255)
-        return r, g, b
+        return GAMMA8[r], GAMMA8[g], GAMMA8[b]

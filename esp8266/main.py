@@ -24,13 +24,13 @@ def cycle(p):
         p = cache
     while p:
         yield from p
-
+        
 chromecast = cycle(cast_ip)
 
 def main():
     device = next(chromecast)
     enc = Encoder(12, 13, clicks=2, reverse=True)
-    np = volume.NeoPixelRing(4, machine.Pin(15), 16, device)
+    np = volume.NeoPixelRing(4, device, machine.Pin(15), 16)
     button = machine.Pin(5, machine.Pin.IN)
     cast = volume.Chromecast(device)
 
@@ -39,7 +39,8 @@ def main():
     enc.set_val(current_vol)
     last_enc_val = current_vol
     last_change_tick = time.ticks_ms()
-    np.set_vol(current_vol)
+    #np.set_vol(current_vol)
+    np.change_device(device, current_vol)
     req = 1
     
     while True:
@@ -72,8 +73,6 @@ def main():
             cast = volume.Chromecast(device)
             current_vol = cast.get_volume
             enc.set_val(current_vol)
-            np.fill((0,255,255))
-            time.sleep_ms(200)
             np.change_device(device, current_vol)
             print('switched to:', cast_name[device], device, 'current vol:', current_vol)
             last_change_tick = time.ticks_ms()

@@ -1,5 +1,6 @@
 __pycache__/
 .vscode/
+venv/
 castenv/
 netscan.py
 wificonf.py
