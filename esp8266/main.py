@@ -68,6 +68,11 @@ def main():
         #CHANGING CHROMECAST WITH ENCODER BUTTON
         if button.value():
             print("BUTTON PRESSED")
+            button_pressed = time.ticks_ms()
+            while button.value():
+                time.sleep_ms(50)
+            button_pressed_time = time.ticks_diff(time.ticks_ms(), button_pressed)
+            print("BUTTON RELEASED", button_pressed_time, " ms")
             cast.disconnect()
             device = next(chromecast)
             cast = volume.Chromecast(device)

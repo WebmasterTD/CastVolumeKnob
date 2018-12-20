@@ -48,13 +48,22 @@ void loop() {
       while (digitalRead(LED_V_PIN) == HIGH) {
         if (digitalRead(INT_PIN) == LOW){
           digitalWrite(BUTTON, HIGH);
-          delay(100);
-          digitalWrite(BUTTON, LOW);
+          state = 25;
+          delay(50);
+          break;
         }
         delay(50);
         //Serial.println(state);
       }
       state = 30;
+      break;
+
+    case 25: //BUTTON PRESSED WHILE RUNNING
+      while (digitalRead(INT_PIN) == LOW) {
+          delay(100);
+      }
+      digitalWrite(BUTTON, LOW);
+      state = 20;
       break;
       
     case 30:
@@ -68,14 +77,6 @@ void loop() {
   delay(100);
 
 }
-
-/*
-void wake_up() {
-  detachInterrupt(digitalPinToInterrupt(INT_PIN));
-  //sleep_disable();
-  state = 0;
-}
-*/
 
 ISR(PCINT0_vect)
 {
