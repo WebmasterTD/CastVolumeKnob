@@ -21,7 +21,7 @@ void setup() {
   pinMode(BUTTON, OUTPUT);
   pinMode(INT_PIN, INPUT_PULLUP);
  
-  sei();
+  cli();
   //attachInterrupt(digitalPinToInterrupt(INT_PIN), wake_up, LOW);
   }
 
@@ -46,26 +46,18 @@ void loop() {
 
     case 20:    //RUNNING --- WAIT for ESP to turn off     
       while (digitalRead(LED_V_PIN) == HIGH) {
-        if (digitalRead(INT_PIN) == LOW){
-          digitalWrite(BUTTON, HIGH);
-          state = 25;
-          delay(50);
-          break;
+        if (digitalRead(INT_PIN) == LOW) {
+            digitalWrite(BUTTON, HIGH);
+            while (digitalRead(INT_PIN) == LOW) {
+              delay(50);
+            }
+            digitalWrite(BUTTON, LOW);
         }
         delay(50);
         //Serial.println(state);
       }
       state = 30;
-      break;
-
-    case 25: //BUTTON PRESSED WHILE RUNNING
-      while (digitalRead(INT_PIN) == LOW) {
-          delay(100);
-      }
-      digitalWrite(BUTTON, LOW);
-      state = 20;
-      break;
-      
+      break;      
     case 30:
       //attachInterrupt(digitalPinToInterrupt(INT_PIN), wake_up, LOW);
       sei();

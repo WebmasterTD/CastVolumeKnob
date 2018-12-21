@@ -1,11 +1,12 @@
-# This file is executed on every boot (including wake-boot from deepsleep)
-
 import gc
+import uos, machine
 import utime as time
 import wificonf
+import esp
 
 ssid = wificonf.WIFI_SSID 
 passw = wificonf.WIFI_PASSWORD 
+uos.dupterm(machine.UART(0, 115200), 1)
 
 def timed(func):
     def wrapper():
@@ -31,4 +32,6 @@ def do_connect():
     print('network config:', sta_if.ifconfig())
 
 gc.collect()
+esp.osdebug(None)
+
 do_connect()

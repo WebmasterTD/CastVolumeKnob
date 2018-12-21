@@ -32,7 +32,7 @@ def main():
     enc = Encoder(12, 13, clicks=2, reverse=True)
     np = volume.NeoPixelRing(4, device, machine.Pin(15), 16)
     button = machine.Pin(5, machine.Pin.IN)
-    cast = volume.Chromecast(device)
+    cast = volume.Chromecast(device, np)
 
     current_vol = cast.get_volume
     print('Connected to:', cast_name[device], device, 'current vol:', current_vol)
@@ -67,24 +67,26 @@ def main():
         
         #CHANGING CHROMECAST WITH ENCODER BUTTON
         if button.value():
-            print("BUTTON PRESSED")
-            button_pressed = time.ticks_ms()
+            print('BUTTON PRESSED')
+            b_start = time.ticks_ms()
             while button.value():
-                time.sleep_ms(50)
-            button_pressed_time = time.ticks_diff(time.ticks_ms(), button_pressed)
-            print("BUTTON RELEASED", button_pressed_time, " ms")
-            cast.disconnect()
-            device = next(chromecast)
-            cast = volume.Chromecast(device)
-            current_vol = cast.get_volume
-            enc.set_val(current_vol)
-            np.change_device(device, current_vol)
-            print('switched to:', cast_name[device], device, 'current vol:', current_vol)
-            last_change_tick = time.ticks_ms()
-            
-
-
-
+                b_time = time.ticks_diff(time.ticks_ms(), b_start)
+                if (b_time > 2000):
+                    np.stop()
+                    cast.stop_playback()
+                    time.sleep_ms(1500)
+                    np.set_vol(current_vol)
+                    last_change_tick = time.ticks_ms()
+                    break
+            if b_time < 2000:
+                cast.disconnect()
+                device = next(chromecast)
+                cast = volume.Chromecast(device, np)
+                current_vol = cast.get_volume
+                enc.set_val(current_vol)
+                np.change_device(device, current_vol)
+                print('switched to:', cast_name[device], device, 'current vol:', current_vol)
+                last_change_tick = time.ticks_ms()
 
         time.sleep_ms(100)
 

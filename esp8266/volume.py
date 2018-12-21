@@ -46,8 +46,9 @@ GAMMA8 = (0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 
 class Chromecast(object):        
     
-    def __init__(self, ip, demo = None, timeout = None):
+    def __init__(self, ip, neopixels):
         self.ip = ip
+        self.np = neopixels
         self.request = 2
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
@@ -82,6 +83,7 @@ class Chromecast(object):
     
     def read_message(self):
         siz = unpack('>I',self.s.read(4))[0]
+        print(siz)
         status = str(self.s.read(siz))
         self.vol = float(re.search('\"level\":([0-9]\.?[0-9]*)', status).group(1))
         self.vol = int(round(self.vol*100))
@@ -90,7 +92,17 @@ class Chromecast(object):
             self.sess_id = self.sess_id.group(1)
         
         print('sessionId: ', self.sess_id)
-        
+    
+    def stop_playback(self):
+        if self.sess_id:
+            msg_size = len(str(self.request))
+            stop_msg = STOP_MSGS[msg_size]
+            stop_msg = stop_msg.replace(b'###', bytes(self.sess_id, 'utf-8'))
+            stop_msg = stop_msg.replace(b'$$$', bytes(str(self.request), 'utf-8'))
+            print(stop_msg)
+            self.s.write(stop_msg)
+            self.request += 1
+            #self.read_message()
 
 class NeoPixelRing(NeoPixel):
     
@@ -147,8 +159,12 @@ class NeoPixelRing(NeoPixel):
         self.fill((255,128,0))
         self.write()
 
+    def stop(self):
+        self.fill((255, 0, 0))
+        self.write()
+
     def turn_off(self):
-        self.fill((0,0,0))
+        self.fill((0, 0, 0))
         self.write()
         self.led_v.off()
 
