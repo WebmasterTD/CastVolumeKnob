@@ -21,9 +21,9 @@ VOL_MSGS =  {
             }
 
 STOP_MSGS = {
-            1 : b'\x08\x00\x12\x08sender-0\x1a\nreceiver-0"#urn:x-cast:com.google.cast.receiver(\x002U{"type": "STOP", "requestId": $$$, "sessionId": "###"}',
-            2 : b'\x08\x00\x12\x08sender-0\x1a\nreceiver-0"#urn:x-cast:com.google.cast.receiver(\x002V{"type": "STOP", "requestId": $$$, "sessionId": "###"}',
-            3 : b'\x08\x00\x12\x08sender-0\x1a\nreceiver-0"#urn:x-cast:com.google.cast.receiver(\x002W{"type": "STOP", "requestId": $$$, "sessionId": "###"}'
+            1 : b'\x00\x00\x00\x96\x08\x00\x12\x08sender-0\x1a\nreceiver-0"#urn:x-cast:com.google.cast.receiver(\x002U{"type": "STOP", "requestId": $$$, "sessionId": "###"}',
+            2 : b'\x00\x00\x00\x97\x08\x00\x12\x08sender-0\x1a\nreceiver-0"#urn:x-cast:com.google.cast.receiver(\x002V{"type": "STOP", "requestId": $$$, "sessionId": "###"}',
+            3 : b'\x00\x00\x00\x98\x08\x00\x12\x08sender-0\x1a\nreceiver-0"#urn:x-cast:com.google.cast.receiver(\x002W{"type": "STOP", "requestId": $$$, "sessionId": "###"}'
             }
 
 GAMMA8 = (0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
@@ -55,6 +55,7 @@ class Chromecast(object):
             self.s.connect((self.ip, 8009))
             self.s = ssl.wrap_socket(self.s)
         except:
+            self.np.error()
             raise Exception("Couldn't connect to Chromecast device:" + self.ip)
         
         for msg in INIT_MSGS:
@@ -73,7 +74,6 @@ class Chromecast(object):
         r_volmsg = VOL_MSGS[msg_len]
         r_volmsg = r_volmsg.replace(b'###', bytes(volume, 'utf-8'))
         r_volmsg = r_volmsg.replace(b'$$$', bytes(str(self.request), 'utf-8'))
-        #print(volume, self.request, r_volmsg)
         self.s.write(r_volmsg)
         self.request += 1
         self.read_message()
@@ -83,7 +83,6 @@ class Chromecast(object):
     
     def read_message(self):
         siz = unpack('>I',self.s.read(4))[0]
-        print(siz)
         status = str(self.s.read(siz))
         self.vol = float(re.search('\"level\":([0-9]\.?[0-9]*)', status).group(1))
         self.vol = int(round(self.vol*100))
@@ -91,7 +90,6 @@ class Chromecast(object):
         if self.sess_id:
             self.sess_id = self.sess_id.group(1)
         
-        print('sessionId: ', self.sess_id)
     
     def stop_playback(self):
         if self.sess_id:
@@ -99,10 +97,10 @@ class Chromecast(object):
             stop_msg = STOP_MSGS[msg_size]
             stop_msg = stop_msg.replace(b'###', bytes(self.sess_id, 'utf-8'))
             stop_msg = stop_msg.replace(b'$$$', bytes(str(self.request), 'utf-8'))
-            print(stop_msg)
+            #print(stop_msg)
             self.s.write(stop_msg)
             self.request += 1
-            #self.read_message()
+            self.read_message()
 
 class NeoPixelRing(NeoPixel):
     

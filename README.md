@@ -6,5 +6,4 @@ Design a device portable battery powered device which is easy to use and elegant
 
 
 ## TODO: 
-* STOP function
 * Timeout / Error checking
