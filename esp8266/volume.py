@@ -7,6 +7,7 @@ from neopixel import NeoPixel
 from ustruct import unpack
 import math
 import wificonf
+import esp
 INIT_MSGS = (
             b'\x00\x00\x00Y\x08\x00\x12\x08sender-0\x1a\nreceiver-0"(urn:x-cast:com.google.cast.tp.connection(\x002\x13{"type": "CONNECT"}',
             b'\x00\x00\x00g\x08\x00\x12\x08sender-0\x1a\nreceiver-0"#urn:x-cast:com.google.cast.receiver(\x002&{"type": "GET_STATUS", "requestId": 1}'
@@ -26,7 +27,8 @@ STOP_MSGS = {
             3 : b'\x00\x00\x00\x98\x08\x00\x12\x08sender-0\x1a\nreceiver-0"#urn:x-cast:com.google.cast.receiver(\x002W{"type": "STOP", "requestId": $$$, "sessionId": "###"}'
             }
 
-GAMMA8 = (0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+GAMMA8 =    (  
+            0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
             0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  1,
             1,  1,  1,  1,  1,  1,  1,  1,  1,  2,  2,  2,  2,  2,  2,  2,
             2,  3,  3,  3,  3,  3,  3,  3,  4,  4,  4,  4,  4,  5,  5,  5,
@@ -41,7 +43,8 @@ GAMMA8 = (0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
             115,117,119,120,122,124,126,127,129,131,133,135,137,138,140,142,
             144,146,148,150,152,154,156,158,160,162,164,167,169,171,173,175,
             177,180,182,184,186,189,191,193,196,198,200,203,205,208,210,213,
-            215,218,220,223,225,228,231,233,236,239,241,244,247,249,252,255)
+            215,218,220,223,225,228,231,233,236,239,241,244,247,249,252,255
+            )
 
 
 class Chromecast(object):        
@@ -56,7 +59,10 @@ class Chromecast(object):
             self.s = ssl.wrap_socket(self.s)
         except:
             self.np.error()
-            raise Exception("Couldn't connect to Chromecast device:" + self.ip)
+            print("Couldn't connect to Chromecast device:" + self.ip)
+            time.sleep_ms(1500)
+            esp.deepsleep()
+
         
         for msg in INIT_MSGS:
             self.s.write(msg)
@@ -141,8 +147,8 @@ class NeoPixelRing(NeoPixel):
         self.write()
 
     def vol2pix(self, volume):
-        pixels = (4.5, 4.5, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 34.5, 34.5)
-        hues =   (240,210,180,168,156,144,132,120,108,96,84,72,60,30,0)
+        pixels = wificonf.neopixel_percents
+        hues =   wificonf.neopixel_hues
         for h, p in zip(hues, pixels):
             if (volume/p) > 1:
                 yield (h, 1, 1)
@@ -154,8 +160,13 @@ class NeoPixelRing(NeoPixel):
         return
 
     def error(self):
-        self.fill((255,128,0))
-        self.write()
+        for _ in range(3):
+            self.fill((GAMMA8[255],GAMMA8[128],GAMMA8[0]))
+            self.write()
+            time.sleep_ms(300)
+            self.fill((0, 0, 0))
+            self.write()
+            time.sleep_ms(200)
 
     def stop(self):
         self.fill((255, 0, 0))

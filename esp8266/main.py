@@ -9,8 +9,6 @@ cast_ip = list(wificonf.CHROMECASTS.keys())
 
 cast_name  = wificonf.CHROMECASTS
 
-
-
 def cycle(p):
     try:
         len(p)
@@ -70,15 +68,15 @@ def main():
             print('BUTTON PRESSED')
             b_start = time.ticks_ms()
             while button.value():
-                b_time = time.ticks_diff(time.ticks_ms(), b_start)
-                if (b_time > 2000):
+                if (time.ticks_diff(time.ticks_ms(), b_start) > 2000):
+                    print('STOPPING PLAYBACK')
                     np.stop()
                     cast.stop_playback()
                     time.sleep_ms(1500)
                     np.set_vol(current_vol)
                     last_change_tick = time.ticks_ms()
                     break
-            if b_time < 2000:
+            if time.ticks_diff(time.ticks_ms(), b_start) < 2000:
                 cast.disconnect()
                 device = next(chromecast)
                 cast = volume.Chromecast(device, np)
