@@ -169,7 +169,6 @@ Wire Wire Line
 	3000 5100 3000 5050
 Wire Wire Line
 	3000 4700 3000 4750
-Connection ~ 3000 5100
 $Comp
 L power:+5V #PWR08
 U 1 1 5BE9BA62
@@ -286,10 +285,6 @@ F 3 "~" H 4500 5100 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	4150 5000 4300 5000
-Wire Wire Line
-	3000 5100 4300 5100
-Wire Wire Line
 	4300 5200 4150 5200
 Wire Wire Line
 	4150 5200 4150 5500
@@ -317,8 +312,6 @@ F 3 "~" H 4300 2300 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	3000 4700 3800 4700
-Wire Wire Line
-	4150 4700 4150 5000
 Wire Wire Line
 	3800 3800 3800 4700
 Connection ~ 3800 4700
@@ -650,4 +643,15 @@ Text Label 5100 2600 2    50   ~ 0
 BUTTON
 Text Label 7950 4400 0    50   ~ 0
 BUTTON
+Wire Wire Line
+	4300 5100 4150 5100
+Wire Wire Line
+	4150 4700 4150 5100
+Wire Wire Line
+	4300 5000 3950 5000
+Wire Wire Line
+	3950 5000 3950 5100
+Wire Wire Line
+	3950 5100 3000 5100
+Connection ~ 3000 5100
 $EndSCHEMATC
