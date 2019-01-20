@@ -49,26 +49,16 @@ GAMMA8 =    (
 
 class Chromecast(object):        
     
-    def __init__(self, ip, neopixels):
+    def __init__(self, ip):
         self.ip = ip
-        self.np = neopixels
         self.request = 2
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        try:
-            self.s.connect((self.ip, 8009))
-            self.s = ssl.wrap_socket(self.s)
-        except:
-            self.np.error()
-            print("Couldn't connect to Chromecast device:" + self.ip)
-            time.sleep_ms(1500)
-            esp.deepsleep()
-
-        
+        self.s.connect((self.ip, 8009))
+        self.s = ssl.wrap_socket(self.s)
         for msg in INIT_MSGS:
             self.s.write(msg)
-            
         self.read_message()
-    
+       
     @property
     def get_volume(self):
         return self.vol
@@ -163,10 +153,10 @@ class NeoPixelRing(NeoPixel):
         for _ in range(3):
             self.fill((GAMMA8[255],GAMMA8[128],GAMMA8[0]))
             self.write()
-            time.sleep_ms(300)
+            time.sleep_ms(150)
             self.fill((0, 0, 0))
             self.write()
-            time.sleep_ms(200)
+            time.sleep_ms(100)
 
     def stop(self):
         self.fill((255, 0, 0))
