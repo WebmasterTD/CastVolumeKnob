@@ -21,9 +21,13 @@ This is the final form. Completely wireless, rechargeable device.
 
 To wake it up you have to tap the knob once. After it wakes up it automatically connects to the first chromecast device, you can control its volume by turning the knob. To change the device tap the knob again. To stop the music playback press and hold the knob until the LEDs turn red.
 
-## Instructions
+## Instructions:
 
-## Programming the ESP8266
+### Schematic
+
+![Schematic](\pcb_design\CastVolumeKnob\g2548.png)
+
+### Programming the ESP8266
 
 * install esptool and ampy
     ```shell
@@ -55,7 +59,7 @@ To wake it up you have to tap the knob once. After it wakes up it automatically 
                     volume.py
     ```
 
-## Assembly
+### Assembly
 
 * 3D print the case and glue the middle and the top part together
 * Solder everything to the PCB

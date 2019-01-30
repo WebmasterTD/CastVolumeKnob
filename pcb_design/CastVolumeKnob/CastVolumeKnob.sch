@@ -5,8 +5,8 @@ EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
-Title ""
-Date ""
+Title "CastVolumeKnob"
+Date "2019-01-30"
 Rev ""
 Comp ""
 Comment1 ""
