@@ -15,7 +15,7 @@ For controlling the volume on Chromecast devices you need to use your phone. - i
 
 ## The solution
 
-![CastVolumeKnob](\case\IMG_8026.jpg)
+![CastVolumeKnob](/case/IMG_8026.jpg)
 
 This is the final form. Completely wireless, rechargeable device. 
 
@@ -25,7 +25,7 @@ To wake it up you have to tap the knob once. After it wakes up it automatically 
 
 ### Schematic
 
-![Schematic](\pcb_design\CastVolumeKnob\g2548.png)
+![Schematic](/pcb_design/CastVolumeKnob/g2548.png)
 
 ### Programming the ESP8266
 
