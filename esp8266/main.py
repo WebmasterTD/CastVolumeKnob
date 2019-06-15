@@ -4,12 +4,16 @@ import machine
 import esp
 import volume
 import wificonf
+import uerrno
 
 cast_ip = list(wificonf.CHROMECASTS.keys())
 
 cast_name  = wificonf.CHROMECASTS
 
 def cycle(p):
+    """
+    Makes a generator cycling through arg p 
+    """
     try:
         len(p)
     except TypeError:
@@ -22,24 +26,47 @@ def cycle(p):
         p = cache
     while p:
         yield from p
-        
+
 chromecast = cycle(cast_ip)
 
+device = next(chromecast)
+
+def connect2device(np):
+    """
+    Connects to cast device and returns an instance of the device.
+    If can't connect to the device, pops it from the cast_ip list 
+    and switches to the next device
+    """
+    global device
+    connected = False
+    while not connected:
+        try:
+            cast = volume.Chromecast(device)
+            connected = True
+        except OSError as err:
+            if err.args[0] == uerrno.ECONNABORTED:
+                new_device = next(chromecast)
+                np.error()
+                print('ERROR CONNECTING TO: ', cast_name[device])
+                cast_ip.pop(cast_ip.index(device))
+                del cast_name[device]
+                device = new_device
+                
+    return cast
+
 def main():
+    global device
     device = next(chromecast)
     enc = Encoder(12, 13, clicks=2, reverse=True)
     np = volume.NeoPixelRing(4, device, machine.Pin(15), 16)
     button = machine.Pin(5, machine.Pin.IN)
-    cast = volume.Chromecast(device, np)
-
+    cast = connect2device(np)
     current_vol = cast.get_volume
     print('Connected to:', cast_name[device], device, 'current vol:', current_vol)
     enc.set_val(current_vol)
     last_enc_val = current_vol
     last_change_tick = time.ticks_ms()
-    #np.set_vol(current_vol)
     np.change_device(device, current_vol)
-    req = 1
     
     while True:
         val = enc.value
@@ -51,7 +78,6 @@ def main():
 
         #CHANGING VOLUME    
         if (time.ticks_diff(time.ticks_ms(), last_change_tick) > 200) and (last_enc_val != current_vol):
-            req +=1
             cast.set_volume(val)
             current_vol = cast.get_volume
             print('current volume:', current_vol)
@@ -78,12 +104,14 @@ def main():
                     break
             if time.ticks_diff(time.ticks_ms(), b_start) < 2000:
                 cast.disconnect()
+                prev_device = device
                 device = next(chromecast)
-                cast = volume.Chromecast(device, np)
-                current_vol = cast.get_volume
-                enc.set_val(current_vol)
-                np.change_device(device, current_vol)
-                print('switched to:', cast_name[device], device, 'current vol:', current_vol)
+                if device is not prev_device:
+                    cast = connect2device(np)
+                    current_vol = cast.get_volume
+                    enc.set_val(current_vol)
+                    np.change_device(device, current_vol)
+                    print('switched to:', cast_name[device], device, 'current vol:', current_vol)
                 last_change_tick = time.ticks_ms()
 
         time.sleep_ms(100)

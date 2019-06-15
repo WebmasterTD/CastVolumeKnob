@@ -49,26 +49,16 @@ GAMMA8 =    (
 
 class Chromecast(object):        
     
-    def __init__(self, ip, neopixels):
+    def __init__(self, ip):
         self.ip = ip
-        self.np = neopixels
         self.request = 2
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        try:
-            self.s.connect((self.ip, 8009))
-            self.s = ssl.wrap_socket(self.s)
-        except:
-            self.np.error()
-            print("Couldn't connect to Chromecast device:" + self.ip)
-            time.sleep_ms(1500)
-            esp.deepsleep()
-
-        
+        self.s.connect((self.ip, 8009))
+        self.s = ssl.wrap_socket(self.s)
         for msg in INIT_MSGS:
             self.s.write(msg)
-            
         self.read_message()
-    
+       
     @property
     def get_volume(self):
         return self.vol
@@ -113,6 +103,7 @@ class NeoPixelRing(NeoPixel):
     def __init__(self, led_v_pin, device, *args, **kwargs):
         self.led_v = machine.Pin(led_v_pin, machine.Pin.OUT)
         self.colors = wificonf.DEVICE_COLORS
+        self.lightness = wificonf.LED_LIGHTNESS
         self.device = device
         self.turn_on()
         super(NeoPixelRing, self).__init__(*args, **kwargs)
@@ -121,9 +112,9 @@ class NeoPixelRing(NeoPixel):
         vol = int(volume)
         self.device = device
         rev = list(enumerate(self.vol2pix(vol), 1))
-        r, g, b = self.colors[self.device]
+        h, s, v = self.colors[self.device]
         for i in range(16):
-            self[i] = GAMMA8[r], GAMMA8[g], GAMMA8[b]
+            self[i] = self.hsv2rgb(h, s, v)
             self.write()
             time.sleep_ms(30)
 
@@ -140,9 +131,10 @@ class NeoPixelRing(NeoPixel):
 
     def set_vol(self, volume):
         vol = int(volume)
-        self[0] = self.colors[self.device]
-        for i, c in enumerate(self.vol2pix(vol), 1):
-            h, s, v = c
+        h, s, v = self.colors[self.device]
+        self[0] = self.hsv2rgb(h, s, v)
+        for i, color in enumerate(self.vol2pix(vol), 1):
+            h, s, v = color
             self[i] = self.hsv2rgb(h, s, v)
         self.write()
 
@@ -161,15 +153,15 @@ class NeoPixelRing(NeoPixel):
 
     def error(self):
         for _ in range(3):
-            self.fill((GAMMA8[255],GAMMA8[128],GAMMA8[0]))
+            self.fill(self.hsv2rgb(30, 1, 1))
             self.write()
-            time.sleep_ms(300)
+            time.sleep_ms(150)
             self.fill((0, 0, 0))
             self.write()
-            time.sleep_ms(200)
+            time.sleep_ms(100)
 
     def stop(self):
-        self.fill((255, 0, 0))
+        self.fill(self.hsv2rgb(0, 1, 1))
         self.write()
 
     def turn_off(self):
@@ -183,7 +175,7 @@ class NeoPixelRing(NeoPixel):
     def hsv2rgb(self, h, s, v):
         h = float(h)
         s = float(s)
-        v = float(v)
+        v = float(v) * self.lightness
         h60 = h / 60.0
         h60f = math.floor(h60)
         hi = int(h60f) % 6
