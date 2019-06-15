@@ -4,3 +4,4 @@ venv/
 castenv/
 netscan.py
 wificonf.py
+.idea/
