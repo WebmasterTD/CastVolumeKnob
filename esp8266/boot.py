@@ -4,6 +4,7 @@ import utime as time
 import wificonf
 import esp
 import network
+import volume
 
 ssid = wificonf.WIFI_SSID 
 passw = wificonf.WIFI_PASSWORD
@@ -13,6 +14,9 @@ uos.dupterm(machine.UART(0, 115200), 1)
 
 def timed(func):
     def wrapper():
+        np = volume.NeoPixelRing(4, None, machine.Pin(15), 16)
+        np.fill((5,5,5))
+        np.write()
         start = start = time.ticks_ms() # get millisecond counter
         func()
         delta = time.ticks_diff(time.ticks_ms(), start)
