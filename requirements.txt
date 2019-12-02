@@ -1,4 +1,4 @@
-ecdsa==0.13
+ecdsa>=0.13.3
 esptool==2.5.1
 pyaes==1.6.1
 pyserial==3.4
